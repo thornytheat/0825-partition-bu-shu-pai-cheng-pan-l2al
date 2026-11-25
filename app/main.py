@@ -6,6 +6,7 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from app.api import api
 from app.business import DomainIssue
 from app.config import MAX_FILE, ROOT
+from app.dispatch.http import dispatch_api
 from app.http_errors import response
 from app.review.store import Store
 from app.spec import PROJECT
@@ -18,6 +19,7 @@ def create_app(database=None):
     app.register_error_handler(DomainIssue,response)
     app.register_error_handler(RequestEntityTooLarge,lambda _: response(DomainIssue('FILE_TOO_LARGE')))
     app.register_blueprint(api)
+    app.register_blueprint(dispatch_api)
 
     @app.get('/')
     def home():

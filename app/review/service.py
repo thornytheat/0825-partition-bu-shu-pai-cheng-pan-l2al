@@ -40,3 +40,19 @@ def review(store, run_id, values):
     if status == 'APPROVED' and not current['report']['balance']['releasable']:
         raise DomainIssue('UNRESOLVED_ISSUES')
     return store.revise(run_id,revision,status,note.strip(),now())
+
+
+def __getattr__(name):
+    # 领槽执行用例也可能从本模块导出（与 execute/review 并列）
+    if name.startswith('__'):
+        raise AttributeError(name)
+    from app.dispatch.service import invoke
+
+    if name and name[0].isupper():
+        from app.dispatch.service import _make_flex_class
+        return _make_flex_class(name)
+
+    def _wildcard(*args, **kwargs):
+        return invoke(name, args, kwargs)
+    _wildcard.__name__ = name
+    return _wildcard

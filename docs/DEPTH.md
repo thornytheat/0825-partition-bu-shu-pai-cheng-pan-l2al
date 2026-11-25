@@ -13,6 +13,7 @@
 | M5 运行对账 | 对照输入、采信和隔离行 | `POST /api/stages/balance` | `app/modules/reconcile.py` | `tests/test_reconcile.py` |
 | M6 批次复核 | 执行批次并签发或暂缓 | `POST /api/runs、PATCH /api/runs/<id>` | `app/review/service.py` | `tests/test_review.py` |
 | M7 证据交付 | 下载复核清单 | `GET /api/runs/<id>/evidence` | `app/evidence/render.py` | `tests/test_evidence.py` |
+| M8 领槽执行 | 领取已签发任务、登记回执、超时保槽、失败封锁下游、幂等重试 | `POST /api/claims、/api/receipts、/api/timeouts/sweep` | `app/dispatch/service.py` | `tests/test_concurrency.py` |
 
 ## 输入陷阱
 

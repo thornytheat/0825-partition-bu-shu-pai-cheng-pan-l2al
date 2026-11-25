@@ -18,8 +18,48 @@
     {{ ui.inspection() }}
     {{ ui.archive() }}
     </main>
+    <section class="panel dispatch" id="dispatch-area" aria-labelledby="dispatch-title">
+      <div class="panel-head">
+        <h2 id="dispatch-title">执行领槽与回执</h2>
+        <button type="button" id="dispatch-refresh" class="ghost">刷新</button>
+      </div>
+      <form id="claim-form" class="dispatch-form" aria-label="领取执行槽">
+        <label>从已签发批次选择
+          <select id="issued-pick">
+            <option value="">— 手动填写 / 点击刷新载入 —</option>
+          </select>
+        </label>
+        <label>已签发批次 ID（可选）<input name="run_id" placeholder="run id"></label>
+        <label>分区 / 任务<input name="task_id" required list="task-options" placeholder="如 0001-3 或 p1">
+          <datalist id="task-options"></datalist>
+        </label>
+        <label>依赖分区（逗号分隔，可选）<input name="depends_on" placeholder="up"></label>
+        <div class="dispatch-range">
+          <label>起 slot<input name="start" type="number" required placeholder="2"></label>
+          <label>止 slot（左闭右开）<input name="end" type="number" required placeholder="4"></label>
+        </div>
+        <label>超时秒数（可选）<input name="timeout_seconds" type="number" min="0" step="0.1" placeholder="60"></label>
+        <label>幂等请求号<input name="request_id" placeholder="自动生成"></label>
+        <button class="action" type="submit">领取执行槽</button>
+      </form>
+      <form id="receipt-form" class="dispatch-form" aria-label="登记执行回执">
+        <label>领槽 ID<input name="claim_id" required placeholder="claim id"></label>
+        <label>回执结论
+          <select name="outcome">
+            <option value="SUCCEEDED">完工成功</option>
+            <option value="FAILED">失败</option>
+          </select>
+        </label>
+        <label>说明<input name="note" placeholder="执行回执说明"></label>
+        <button type="submit">登记回执</button>
+        <button type="button" id="sweep-timeouts" class="ghost">扫描超时（不保释槽）</button>
+      </form>
+      <p id="dispatch-notice" role="status" aria-live="polite"></p>
+      <div class="scroll"><table id="dispatch-table" aria-label="领槽与回执记录"></table></div>
+    </section>
     {{ ui.status() }}
   </div>
 </div>
+<script type="module" src="{{ url_for('static', filename='dispatch.js') }}"></script>
 </body>
 {% endblock %}

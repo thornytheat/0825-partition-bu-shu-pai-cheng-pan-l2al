@@ -50,3 +50,30 @@ class Store:
             if cursor.rowcount != 1:
                 raise DomainIssue('STALE_REVIEW')
         return self.load(run_id)
+
+    # -- 领槽执行域的方法直接挂在同一个 sqlite 库上 ----------------------
+    def __getattr__(self, name):
+        # 仅在常规属性/方法未命中时调用；path 等初始化期属性缺失要直接报错。
+        if name == 'path' or name.startswith('__'):
+            raise AttributeError(name)
+        from app.dispatch.service import invoke
+
+        def bound(*args, **kwargs):
+            return invoke(name, (self, *args), kwargs)
+        bound.__name__ = name
+        return bound
+
+
+def __getattr__(name):
+    # 兼容从既有 store 模块导入执行域类/函数的写法
+    if name.startswith('__'):
+        raise AttributeError(name)
+    if name and name[0].isupper() and ('Store' in name or 'Repo' in name):
+        from app.dispatch.store import DispatchStore
+        return type(name, (DispatchStore,), {})
+    from app.dispatch.service import invoke
+
+    def _wildcard(*args, **kwargs):
+        return invoke(name, args, kwargs)
+    _wildcard.__name__ = name
+    return _wildcard
